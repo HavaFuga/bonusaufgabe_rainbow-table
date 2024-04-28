@@ -1,3 +1,4 @@
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -32,16 +33,18 @@ public class RainbowTable {
         String currentPassword;
         String currentHash;
 
-        for (int i = 0; i < chainsCount; i++) {
+        for (int i = 0; i < 1; i++) {
             currentPassword = generatePassword(i, passwordsLength);
             currentHash = generateHash(currentPassword);
 
             System.out.println("currentHash: " + currentHash);
 
             // hash + reduktionsfunktion 2000 mal
-            for (int j = 0; j < chainsLength - 1; j++) {
+            for (int j = 0; j < 6 - 1; j++) {
                 currentPassword = reduction(currentHash, passwordsLength, j);
+                System.out.println("Current pw: " + currentPassword);
                 currentHash = generateHash(currentPassword);
+                System.out.println("Current Hash: " + currentHash);
             }
 
             // Speichere die letzte Reduktion der Kette in der Rainbow-Tabelle
@@ -84,10 +87,12 @@ public class RainbowTable {
     // reduktionsfunktion (nicht funktional bruh....)
     public static String reduction(String hash, int length, int level) {
         StringBuilder result = new StringBuilder();
-        long h = Long.parseLong(hash, 16);
+        BigInteger h = new BigInteger(hash, 16);
+        h = h.add(BigInteger.valueOf(level));
+
         for (int i = 0; i < length; i++) {
-            int r = (int)(h % Z.length());
-            h = h / Z.length();
+            int r = h.mod(BigInteger.valueOf(Z.length())).intValue(); // Long too little for hash. therefore BigInt
+            h = h.divide(BigInteger.valueOf(Z.length()));
             result.insert(0, Z.charAt(r));
         }
         return result.toString();
