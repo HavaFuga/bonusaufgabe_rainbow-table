@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RainbowTable {
-    private static String Z = "0123456789abcdefghijklmnopqrstuvwxyz";
+    private String Z = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-    public static void main(String[] args) {
+    public RainbowTable() {
         int chainsLength = 2000;
         int passwordsLength = 7;
         int chainsCount = 2000;
@@ -18,15 +18,18 @@ public class RainbowTable {
 
         // example
         System.out.println("Beispiel: Die erste Kette:");
-        String firstPassword = "0000000";
-        String lastHash = rainbowTable.get(firstPassword);
-        System.out.println(firstPassword + " -> " + lastHash);
+        String firstpw = "0000000";
+        String lastpw = rainbowTable.get(firstpw);
+        System.out.println(firstpw + " -> " + lastpw);
+    }
 
-        // TODO: Ermittle has mit alg vom Unterricht
+    public String findPassword(String s) {
+
+        return "";
     }
 
     // Funktion zur Generierung der Rainbow-Tabelle
-    public static Map<String, String> generateRainbowTable(int chainsLength, int passwordsLength, int chainsCount) {
+    private Map<String, String> generateRainbowTable(int chainsLength, int passwordsLength, int chainsCount) {
         Map<String, String> rainbowTable = new HashMap<>();
 
         // 2000 pws mit 7 lenght
@@ -36,39 +39,40 @@ public class RainbowTable {
         for (int i = 0; i < 1; i++) {
             currentPassword = generatePassword(i, passwordsLength);
             currentHash = generateHash(currentPassword);
+            String firstPw = currentPassword;
 
-            System.out.println("currentHash: " + currentHash);
 
             // hash + reduktionsfunktion 2000 mal
-            for (int j = 0; j < 6 - 1; j++) {
+            for (int j = 0; j < 5; j++) {
                 currentPassword = reduction(currentHash, passwordsLength, j);
                 System.out.println("Current pw: " + currentPassword);
                 currentHash = generateHash(currentPassword);
                 System.out.println("Current Hash: " + currentHash);
             }
 
+            String lastPw = reduction(currentHash, passwordsLength, 1999);
+
             // Speichere die letzte Reduktion der Kette in der Rainbow-Tabelle
-//            rainbowTable.put(currentPassword, currentHash);
+            rainbowTable.put(firstPw, lastPw);
         }
 
         return rainbowTable;
     }
 
     // generate pw
-    public static String generatePassword(int index, int length) {
+    private String generatePassword(int index, int length) {
         StringBuilder password = new StringBuilder();
 
         for (int i = 0; i < length; i++) {
             password.append(Z.charAt(index % Z.length()));
             index /= Z.length();
         }
-        System.out.println("password.reverse().toString() " + password.reverse().toString());
 
         return password.reverse().toString();
     }
 
     // generate hash mit MD5
-    public static String generateHash(String password) {
+    private String generateHash(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] bytes = md.digest(password.getBytes());
@@ -85,7 +89,7 @@ public class RainbowTable {
     }
 
     // reduktionsfunktion (nicht funktional bruh....)
-    public static String reduction(String hash, int length, int level) {
+    private String reduction(String hash, int length, int level) {
         StringBuilder result = new StringBuilder();
         BigInteger h = new BigInteger(hash, 16);
         h = h.add(BigInteger.valueOf(level));
