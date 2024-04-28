@@ -22,7 +22,6 @@ public class RainbowTable {
 
         // generate rainbow table, should be 2000
         rainbowTable = generateRainbowTable();
-        writeHashMapToFile(rainbowTable);
 
         // Check for testing
         /*System.out.println("Beispiel: Die erste Kette:");
@@ -31,22 +30,10 @@ public class RainbowTable {
         System.out.println(firstpw + " -> " + lastpw);*/
     }
 
-    private void writeHashMapToFile(Map<String, String> hashMap) {
-        String filePath = "output.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            for (Map.Entry<String, String> entry : hashMap.entrySet()) {
-                writer.write(entry.getKey() + ":" + entry.getValue());
-                writer.newLine();
-            }
-            System.out.println("HashMap successfully written to file: " + filePath);
-        } catch (IOException e) {
-            System.out.println("Error writing HashMap to file: " + e.getMessage());
-        }
-    }
-
-
     public String findPassword(String hash) {
+        System.out.println("Please wait, we are looking for the password for the hash " + hash);
         String firstpw = "";
+        boolean hasPwd = false;
 
         outerloop:
         for (int i = chainsCount - 1; i >= 0; i--) {
@@ -59,26 +46,35 @@ public class RainbowTable {
                 currentHash = generateHash(pw);
             }
 
-            String lastPw = reduction(currentHash, passwordsLength, chainsLength -1);
-
             if (rainbowTable.containsValue(pw)) {
                 firstpw = getKey(pw);
+                hasPwd = true;
                 break outerloop;
             }
         }
 
-        System.out.println("firstpw: " + firstpw);
+        if (!hasPwd) {
+            System.out.println("Sorry :( could not find the password from your hash...");
+            return "no pw";
+        }
 
         String cpw = firstpw;
         String ch = generateHash(cpw);
         // hash + reduktionsfunktion 2000 mal
         for (int j = 0; j < chainsLength; j++) {
-            cpw = reduction(ch, passwordsLength, j);
-            ch = generateHash(cpw);
+            // could be the first hash like for example with pw 0000000 vom arbeitsblatt
             if (ch.equals(hash)){
-                System.out.println("your pw is: " + cpw);
+                System.out.println("The start password is " + firstpw);
+                System.out.println("It's the " + j + "th Reductionfunktion from the chain out of " + chainsLength);
+                System.out.println("-------------------------------------------------------------------------------");
+                System.out.println("This is your hash and the corresponding password:");
+                System.out.println("Hash: " + hash);
+                System.out.println("Password: " + cpw);
                 break;
             }
+
+            cpw = reduction(ch, passwordsLength, j);
+            ch = generateHash(cpw);
         }
         return cpw;
     }
@@ -111,17 +107,14 @@ public class RainbowTable {
             for (int j = 0; j < chainsLength; j++) {
                 currentPassword = reduction(currentHash, passwordsLength, j);
                 currentHash = generateHash(currentPassword);
-//                if (firstPw.equals("00000rs")){
-//                    System.out.println("level: " + j);
-//                    System.out.println("Current pw: " + currentPassword);
-//                    System.out.println("Current Hash: " + currentHash);
-//                }
             }
 
             // save first and last pw
             rainbowTable.put(firstPw, currentPassword);
         }
 
+        System.out.println("RainbowTable successfully generated.");
+        System.out.println();
         return rainbowTable;
     }
 
